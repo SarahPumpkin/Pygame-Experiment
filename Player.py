@@ -80,33 +80,40 @@ class Player(pygame.sprite.Sprite):
                 self.move_frame = 0
                 self.image = animation_right_run[self.move_frame]
     def update(self, group):
+        self.collision(group)
         self.walking()
         self.move()
-        self.collision(group)
         #self.horizontalcollision(group)
 
     def collision(self, group):
         hits = pygame.sprite.spritecollide(self, group, False)
         if self.vel.y > 0:
             if hits:
-                lowest = hits[0]
+                for i in hits:
+                    x = 0
+                    lowest = hits[x]
+                    print("Hits[x] is ", hits[x], "!")
+                    if self.rect.bottom >= lowest.rect.top:
+                        self.pos.y = lowest.rect.top - self.rect.height + 1
+                        self.rect.y = lowest.rect.top - self.rect.height + 1
+                        self.vel.y = 0
+                        self.jumping = False
+                    if self.rect.right > lowest.rect.left and self.direction == "RIGHT":
+                        if len(hits) > 1:
+                            x += 1
+                            lowest = hits[x]
+                            self.pos.x = lowest.rect.left - self.rect.width + 1
+                            self.rect.x = lowest.rect.left - self.rect.width + 1
+                            self.vel.x = 0
+                    if self.rect.left < lowest.rect.right and self.direction == "LEFT":
+                        if len(hits) > 1:
+                            x += 1
+                            lowest = hits[x]
+                            self.pos.x = lowest.rect.right # + self.rect.width - 1
+                            self.rect.x = lowest.rect.right # + self.rect.width - 1
+                            self.vel.x = 0
 
-                if self.rect.bottom >= lowest.rect.top:
-                    self.pos.y = lowest.rect.top - self.rect.height + 1
-                    self.rect.y = lowest.rect.top - self.rect.height + 1
-                    self.vel.y = 0
-                    self.jumping = False
-    def horizontalcollision(self, group):
-        hits = pygame.sprite.spritecollide(self, group, False)
-        # if self.vel.x > 0:
-        if hits:
-            lowest = hits[0]
 
-            if self.rect.right >= lowest.rect.left:
-                self.pos.x = lowest.rect.left - self.rect.width + 1
-                self.rect.x = lowest.rect.left - self.rect.width + 1
-                self.vel.x = 0
-                self.running = False
     def jump(self):
         if self.jumping == False:
             self.jumping = True
